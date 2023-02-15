@@ -7,6 +7,8 @@ import (
 	"lesson15/models"
 	"os"
 	"strings"
+
+	"github.com/google/uuid"
 )
 
 type userRepo struct{
@@ -21,7 +23,7 @@ func NewUserRepo(a string, b *os.File) *userRepo{
 	}
 }
 
-// getbyid, dlete, create
+//  create
 
 
 func (u *userRepo) GetList () []models.Usr{
@@ -65,6 +67,59 @@ func (u *userRepo)FindUsr (a string) []models.Usr{
 }
 
 
+func (u *userRepo)GetById (a string) models.Usr{
+	user := []models.Usr{}
+
+	data, err := ioutil.ReadFile("/home/muhiddin/Documents/goprogram/lesson15/users.json")
+	if err != nil {
+		fmt.Println(err)
+	}
+
+	erro := json.Unmarshal(data, &user)
+	if erro != nil {
+		fmt.Println(erro)
+	}
+
+	retUsrs := models.Usr{}
+	for _,v:=range user{
+		if v.Id == a {
+			retUsrs = v
+		}
+	}
+	return retUsrs
+}
+
+
+func (u *userRepo)DleteUsr (a string) ([]models.Usr, error){
+	user := []models.Usr{}
+
+	data, err := ioutil.ReadFile("/home/muhiddin/Documents/goprogram/lesson15/users.json")
+	if err != nil {
+		fmt.Println(err)
+	}
+
+	erro := json.Unmarshal(data, &user)
+	if erro != nil {
+		fmt.Println(erro)
+	}
+
+	retUsrs := []models.Usr{}
+	for _,v:=range user{
+		if v.Id != a {
+			retUsrs = append(retUsrs, v)
+		}
+	}
+
+	body, err := json.MarshalIndent(retUsrs, "", "   ")
+
+	err = ioutil.WriteFile("/home/muhiddin/Documents/goprogram/lesson15/users.json", body, os.ModePerm)
+	if err != nil {
+		return []models.Usr{}, err
+	}
+
+	return retUsrs, nil
+}
+
 
 func (u *userRepo)UpdateUsr (a models.Usr) (models.Usr, error){
 	user := []models.Usr{}
@@ -101,4 +156,47 @@ func (u *userRepo)UpdateUsr (a models.Usr) (models.Usr, error){
 	}
 
 	return updatedUsr, nil
+}
+
+
+func (u *userRepo) CreateUsr (a models.Usr) ([]models.Usr, error){
+	user := []models.Usr{}
+
+	data, err := ioutil.ReadFile("/home/muhiddin/Documents/goprogram/lesson15/users.json")
+	if err != nil {
+		fmt.Println(err)
+	}
+
+	erro := json.Unmarshal(data, &user)
+	if erro != nil {
+		fmt.Println(erro)
+	}
+
+	d := uuid.New().String()
+	createdUsr := []models.Usr{}
+
+	b := models.Usr{
+		Id: d,
+		FirstName: a.FirstName,
+		LastName: a.LastName,
+		Gender: a.Gender,
+		Card_number: a.Card_number,
+		Birthday: a.Birthday,
+		Profession: a.Profession,
+	} 
+	createdUsr = append(createdUsr, b)
+
+	for i := 0; i < len(user); i++ {
+		createdUsr = append(createdUsr, user[i])
+	}
+
+
+	body, err := json.MarshalIndent(createdUsr, "", "   ")
+
+	err = ioutil.WriteFile("/home/muhiddin/Documents/goprogram/lesson15/users.json", body, os.ModePerm)
+	if err != nil {
+		return []models.Usr{}, err
+	}
+
+	return createdUsr, nil
 }
