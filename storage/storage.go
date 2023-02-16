@@ -1,20 +1,25 @@
 package storage
 
-import "os"
+import "lesson15/models"
 
-type Store struct{
-	User *userRepo
+
+type Storage interface{
+	CloseDB()
+	User() UserRepoInerface
+	Post() PostRepoInerface
+}
+type UserRepoInerface interface{
+	GetList () []models.Usr
+	FindUsr (a string) []models.Usr
+	GetById (a string) (models.Usr, error)
+	DleteUsr (a string) ([]models.Usr, error)
+	UpdateUsr (a models.Usr) (models.Usr, error)
+	CreateUsr (a models.Usr) ([]models.Usr, error)
 }
 
-func NewJson() (*Store, error) {
-	userfile, err := os.Open("/home/muhiddin/Documents/goprogram/lesson15/users.json")
-	if err != nil {
-		return nil, err
-	}
-
-	return &Store{
-		User: NewUserRepo("/home/muhiddin/Documents/goprogram/lesson15/users.json", userfile),
-	}, nil
+type PostRepoInerface interface{
+	CreatePost (req models.CreatePost) (string)
+	GetByIdPost (req string) (models.Post, error)
+	GetAllPost () []models.Post
+	GetUserPosts (req string) ([]models.Post)
 }
-
-

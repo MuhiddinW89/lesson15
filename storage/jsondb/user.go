@@ -1,7 +1,8 @@
-package storage
+package jsondb
 
 import (
 	"encoding/json"
+	"errors"
 	"fmt"
 	"io/ioutil"
 	"lesson15/models"
@@ -67,7 +68,7 @@ func (u *userRepo)FindUsr (a string) []models.Usr{
 }
 
 
-func (u *userRepo)GetById (a string) models.Usr{
+func (u *userRepo)GetById (a string) (models.Usr, error){
 	user := []models.Usr{}
 
 	data, err := ioutil.ReadFile("/home/muhiddin/Documents/goprogram/lesson15/users.json")
@@ -80,13 +81,12 @@ func (u *userRepo)GetById (a string) models.Usr{
 		fmt.Println(erro)
 	}
 
-	retUsrs := models.Usr{}
 	for _,v:=range user{
 		if v.Id == a {
-			retUsrs = v
+			return v,nil
 		}
 	}
-	return retUsrs
+	return models.Usr{},errors.New("User not found")
 }
 
 
